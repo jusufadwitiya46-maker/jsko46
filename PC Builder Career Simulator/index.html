@@ -1,0 +1,2523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <title>PC Builder Career Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e14;
+            --bg-secondary: #131921;
+            --bg-tertiary: #1a2230;
+            --fg: #e8eef5;
+            --muted: #6b7a8f;
+            --accent: #00d4aa;
+            --accent-dim: #00a888;
+            --warning: #ffaa00;
+            --danger: #ff4757;
+            --success: #00d4aa;
+            --card: #151c27;
+            --border: #2a3544;
+            --glow: rgba(0, 212, 170, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dim);
+        }
+
+        /* Background Pattern */
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Glow Effects */
+        .glow-accent {
+            box-shadow: 0 0 20px var(--glow), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes progressBar {
+            from { width: 0%; }
+            to { width: var(--progress); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .animate-slide {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 2s infinite;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Button Styles */
+        .btn {
+            position: relative;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--fg);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            background: var(--card);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #cc3344 100%);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--fg);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 212, 170, 0.1) 0%, transparent 100%);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dim) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Component Slot */
+        .component-slot {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            min-height: 80px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .component-slot:hover {
+            border-color: var(--accent);
+            background: var(--card);
+        }
+
+        .component-slot.filled {
+            border-style: solid;
+            border-color: var(--accent-dim);
+        }
+
+        /* Stats Badge */
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .tooltip:hover .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-12px);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        /* Benchmark Animation */
+        .benchmark-bar {
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .benchmark-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, #00ff88 100%);
+            transition: width 1s ease-out;
+        }
+
+        .benchmark-score {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Temperature Gauge */
+        .temp-gauge {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, #00d4aa 0%, #ffaa00 50%, #ff4757 100%);
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .temp-indicator {
+            position: absolute;
+            top: -4px;
+            width: 20px;
+            height: 20px;
+            background: var(--fg);
+            border-radius: 50%;
+            border: 3px solid var(--bg);
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            z-index: 2000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 100;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 99;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* Shop Level Badge */
+        .level-badge {
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            color: var(--bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Component quality colors */
+        .quality-low { color: #888; }
+        .quality-mid { color: var(--accent); }
+        .quality-high { color: #ffaa00; }
+        .quality-legendary { color: #ff4757; }
+
+        /* Diagnosis animation */
+        .diagnosis-pulse {
+            animation: pulse 1s infinite;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            color: var(--fg);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+    </style>
+</head>
+<body class="bg-grid">
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <p id="notificationText"></p>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 flex flex-col fixed h-full z-50" id="sidebar">
+            <!-- Logo -->
+            <div class="p-6 border-b border-[var(--border)]">
+                <h1 class="font-display text-xl font-bold text-[var(--accent)]">PC BUILDER</h1>
+                <p class="text-xs text-[var(--muted)] mt-1">Career Simulator</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 py-4">
+                <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="workshop" onclick="navigateTo('workshop')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                    <span>Workshop</span>
+                </div>
+                <div class="nav-item" data-page="diagnosis" onclick="navigateTo('diagnosis')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>Diagnosis</span>
+                </div>
+                <div class="nav-item" data-page="benchmark" onclick="navigateTo('benchmark')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10"/>
+                        <path d="M12 20V4"/>
+                        <path d="M6 20v-6"/>
+                    </svg>
+                    <span>Benchmark</span>
+                </div>
+                <div class="nav-item" data-page="inventory" onclick="navigateTo('inventory')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                    <span>Inventori</span>
+                </div>
+                <div class="nav-item" data-page="marketplace" onclick="navigateTo('marketplace')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <span>Marketplace</span>
+                </div>
+                <div class="nav-item" data-page="shop" onclick="navigateTo('shop')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>Toko Saya</span>
+                </div>
+                <div class="nav-item" data-page="skills" onclick="navigateTo('skills')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span>Skills</span>
+                </div>
+                <div class="nav-item" data-page="manual" onclick="navigateTo('manual')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Manual</span>
+                </div>
+            </nav>
+
+            <!-- Save/Load -->
+            <div class="p-4 border-t border-[var(--border)]">
+                <button class="btn btn-secondary w-full text-sm" onclick="saveGame()">
+                    Simpan Game
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-6" id="mainContent">
+            <!-- Mobile Header -->
+            <div class="md:hidden flex items-center justify-between mb-6">
+                <button class="mobile-menu-btn btn btn-secondary p-2" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <h1 class="font-display text-lg font-bold text-[var(--accent)]">PC BUILDER</h1>
+                <div class="w-10"></div>
+            </div>
+
+            <!-- Page Content Container -->
+            <div id="pageContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Template -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal w-full max-w-2xl" id="modalContent">
+            <!-- Modal content will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // GAME DATA & STATE
+        // ==========================================
+        
+        const COMPONENT_TYPES = {
+            cpu: 'CPU',
+            motherboard: 'Motherboard',
+            ram: 'RAM',
+            storage: 'Storage',
+            psu: 'PSU',
+            gpu: 'GPU',
+            cooler: 'CPU Cooler',
+            case: 'Case'
+        };
+
+        const SHOP_LEVELS = [
+            { name: 'Garasi Rumah', maxComponents: 20, maxEmployees: 0, dailyRent: 0, icon: '🏠' },
+            { name: 'Toko Kecil', maxComponents: 50, maxEmployees: 1, dailyRent: 100, icon: '🏪' },
+            { name: 'Toko Menengah', maxComponents: 100, maxEmployees: 3, dailyRent: 500, icon: '🏬' },
+            { name: 'Toko Besar', maxComponents: 250, maxEmployees: 6, dailyRent: 2000, icon: '🏛️' },
+            { name: 'Retail Nasional', maxComponents: 500, maxEmployees: 15, dailyRent: 10000, icon: '🌐' }
+        ];
+
+        const DIAGNOSIS_ISSUES = [
+            { id: 'no_power', name: 'Tidak Menyala', symptoms: ['Lampu tidak menyala', 'Kipas tidak berputar'], possibleCauses: ['psu', 'motherboard', 'power_cable'], difficulty: 1 },
+            { id: 'overheating', name: 'Overheating', symptoms: ['PC mati sendiri', 'Suhu tinggi', 'Throttling'], possibleCauses: ['cooler', 'thermal_paste', 'dust', 'fan'], difficulty: 2 },
+            { id: 'blue_screen', name: 'Blue Screen', symptoms: ['BSOD random', 'Crash saat gaming', 'Error code'], possibleCauses: ['ram', 'driver', 'cpu', 'motherboard'], difficulty: 3 },
+            { id: 'no_display', name: 'No Display', symptoms: ['Layar hitam', 'Kipas berputar', 'LED menyala'], possibleCauses: ['gpu', 'ram', 'motherboard', 'cable'], difficulty: 2 },
+            { id: 'random_crash', name: 'Random Crash', symptoms: ['Restart sendiri', 'Freeze', 'Hang'], possibleCauses: ['psu', 'ram', 'cpu', 'motherboard'], difficulty: 3 },
+            { id: 'slow_performance', name: 'Performa Lambat', symptoms: ['Boot lama', 'Lag', 'Loading lama'], possibleCauses: ['storage', 'ram', 'cpu', 'virus'], difficulty: 1 }
+        ];
+
+        // Components Database
+        const COMPONENTS_DB = {
+            cpu: [
+                { id: 'cpu_1', name: 'Pentium G4560', brand: 'Intel', price: 350000, performance: 25, power: 54, socket: 'LGA1151', quality: 'low' },
+                { id: 'cpu_2', name: 'Core i3-10100F', brand: 'Intel', price: 1200000, performance: 45, power: 65, socket: 'LGA1200', quality: 'low' },
+                { id: 'cpu_3', name: 'Core i5-11400F', brand: 'Intel', price: 2300000, performance: 65, power: 65, socket: 'LGA1200', quality: 'mid' },
+                { id: 'cpu_4', name: 'Ryzen 5 5600X', brand: 'AMD', price: 3200000, performance: 80, power: 65, socket: 'AM4', quality: 'mid' },
+                { id: 'cpu_5', name: 'Core i7-12700K', brand: 'Intel', price: 5500000, performance: 92, power: 125, socket: 'LGA1700', quality: 'high' },
+                { id: 'cpu_6', name: 'Ryzen 9 7950X', brand: 'AMD', price: 8500000, performance: 100, power: 170, socket: 'AM5', quality: 'legendary' }
+            ],
+            motherboard: [
+                { id: 'mb_1', name: 'H310M DV', brand: 'MSI', price: 600000, performance: 20, socket: 'LGA1151', formFactor: 'mATX', quality: 'low' },
+                { id: 'mb_2', name: 'B460M Pro', brand: 'Gigabyte', price: 1100000, performance: 35, socket: 'LGA1200', formFactor: 'mATX', quality: 'low' },
+                { id: 'mb_3', name: 'B550 Tomahawk', brand: 'MSI', price: 2500000, performance: 55, socket: 'AM4', formFactor: 'ATX', quality: 'mid' },
+                { id: 'mb_4', name: 'Z690 AORUS Elite', brand: 'Gigabyte', price: 4200000, performance: 75, socket: 'LGA1700', formFactor: 'ATX', quality: 'high' },
+                { id: 'mb_5', name: 'X670E Hero', brand: 'ASUS', price: 8500000, performance: 95, socket: 'AM5', formFactor: 'ATX', quality: 'legendary' }
+            ],
+            ram: [
+                { id: 'ram_1', name: 'DDR4 8GB 2666MHz', brand: 'Kingston', price: 350000, performance: 15, capacity: 8, type: 'DDR4', quality: 'low' },
+                { id: 'ram_2', name: 'DDR4 16GB 3200MHz', brand: 'G.Skill', price: 800000, performance: 30, capacity: 16, type: 'DDR4', quality: 'mid' },
+                { id: 'ram_3', name: 'DDR4 32GB 3600MHz', brand: 'Corsair', price: 1800000, performance: 50, capacity: 32, type: 'DDR4', quality: 'high' },
+                { id: 'ram_4', name: 'DDR5 32GB 5600MHz', brand: 'G.Skill', price: 3200000, performance: 75, capacity: 32, type: 'DDR5', quality: 'high' },
+                { id: 'ram_5', name: 'DDR5 64GB 6000MHz', brand: 'Corsair', price: 6500000, performance: 100, capacity: 64, type: 'DDR5', quality: 'legendary' }
+            ],
+            storage: [
+                { id: 'str_1', name: 'HDD 1TB 7200RPM', brand: 'Seagate', price: 500000, performance: 10, capacity: 1000, type: 'HDD', quality: 'low' },
+                { id: 'str_2', name: 'SSD SATA 480GB', brand: 'Crucial', price: 600000, performance: 25, capacity: 480, type: 'SSD', quality: 'low' },
+                { id: 'str_3', name: 'NVMe 500GB', brand: 'Samsung', price: 900000, performance: 45, capacity: 500, type: 'NVMe', quality: 'mid' },
+                { id: 'str_4', name: 'NVMe 1TB Gen4', brand: 'WD', price: 1800000, performance: 70, capacity: 1000, type: 'NVMe', quality: 'high' },
+                { id: 'str_5', name: 'NVMe 2TB Gen5', brand: 'Samsung', price: 4500000, performance: 100, capacity: 2000, type: 'NVMe', quality: 'legendary' }
+            ],
+            psu: [
+                { id: 'psu_1', name: '450W 80+ White', brand: 'Corsair', price: 400000, performance: 20, wattage: 450, quality: 'low' },
+                { id: 'psu_2', name: '550W 80+ Bronze', brand: 'EVGA', price: 700000, performance: 35, wattage: 550, quality: 'mid' },
+                { id: 'psu_3', name: '750W 80+ Gold', brand: 'Seasonic', price: 1500000, performance: 60, wattage: 750, quality: 'high' },
+                { id: 'psu_4', name: '850W 80+ Platinum', brand: 'Corsair', price: 2800000, performance: 80, wattage: 850, quality: 'high' },
+                { id: 'psu_5', name: '1000W 80+ Titanium', brand: 'Seasonic', price: 4500000, performance: 100, wattage: 1000, quality: 'legendary' }
+            ],
+            gpu: [
+                { id: 'gpu_1', name: 'GT 1030', brand: 'NVIDIA', price: 1100000, performance: 15, power: 30, quality: 'low' },
+                { id: 'gpu_2', name: 'GTX 1650', brand: 'NVIDIA', price: 2500000, performance: 35, power: 75, quality: 'low' },
+                { id: 'gpu_3', name: 'RTX 3060', brand: 'NVIDIA', price: 5500000, performance: 60, power: 170, quality: 'mid' },
+                { id: 'gpu_4', name: 'RX 6800 XT', brand: 'AMD', price: 9500000, performance: 80, power: 300, quality: 'high' },
+                { id: 'gpu_5', name: 'RTX 4090', brand: 'NVIDIA', price: 28000000, performance: 100, power: 450, quality: 'legendary' }
+            ],
+            cooler: [
+                { id: 'cl_1', name: 'Stock Cooler', brand: 'AMD/Intel', price: 0, performance: 10, tdp: 65, quality: 'low' },
+                { id: 'cl_2', name: 'Deepcool AK400', brand: 'Deepcool', price: 450000, performance: 30, tdp: 120, quality: 'mid' },
+                { id: 'cl_3', name: 'Noctua NH-U12S', brand: 'Noctua', price: 1100000, performance: 55, tdp: 180, quality: 'high' },
+                { id: 'cl_4', name: 'Corsair H100i', brand: 'Corsair', price: 2000000, performance: 75, tdp: 250, quality: 'high' },
+                { id: 'cl_5', name: 'NZXT Kraken Z73', brand: 'NZXT', price: 4500000, performance: 100, tdp: 350, quality: 'legendary' }
+            ],
+            case: [
+                { id: 'case_1', name: 'Generic Case', brand: 'Generic', price: 250000, performance: 10, airflow: 1, quality: 'low' },
+                { id: 'case_2', name: 'Cooler Master Q300L', brand: 'CM', price: 550000, performance: 25, airflow: 2, quality: 'mid' },
+                { id: 'case_3', name: 'NZXT H510', brand: 'NZXT', price: 1200000, performance: 45, airflow: 3, quality: 'high' },
+                { id: 'case_4', name: 'Lian Li O11 Dynamic', brand: 'Lian Li', price: 2200000, performance: 75, airflow: 4, quality: 'high' },
+                { id: 'case_5', name: 'Corsair 5000D Airflow', brand: 'Corsair', price: 3500000, performance: 100, airflow: 5, quality: 'legendary' }
+            ]
+        };
+
+        // Initialize Game State
+        let gameState = {
+            money: 5000000,
+            day: 1,
+            shopLevel: 0,
+            reputation: 0,
+            skills: {
+                repair: 1,
+                assembly: 1,
+                sales: 1,
+                management: 1
+            },
+            skillXP: {
+                repair: 0,
+                assembly: 0,
+                sales: 0,
+                management: 0
+            },
+            inventory: {},
+            currentBuild: {
+                cpu: null,
+                motherboard: null,
+                ram: null,
+                storage: null,
+                psu: null,
+                gpu: null,
+                cooler: null,
+                case: null
+            },
+            employees: [],
+            customers: [],
+            marketPrices: {},
+            completedJobs: 0,
+            totalEarnings: 0,
+            branches: 1
+        };
+
+        // Initialize market prices and inventory
+        function initializeGameState() {
+            // Set initial market prices
+            Object.keys(COMPONENTS_DB).forEach(type => {
+                gameState.marketPrices[type] = {};
+                COMPONENTS_DB[type].forEach(comp => {
+                    gameState.marketPrices[type][comp.id] = comp.price;
+                });
+            });
+
+            // Set initial inventory
+            gameState.inventory = {
+                cpu: [{ ...COMPONENTS_DB.cpu[0], quantity: 2 }],
+                motherboard: [{ ...COMPONENTS_DB.motherboard[0], quantity: 2 }],
+                ram: [{ ...COMPONENTS_DB.ram[0], quantity: 4 }],
+                storage: [{ ...COMPONENTS_DB.storage[0], quantity: 2 }],
+                psu: [{ ...COMPONENTS_DB.psu[0], quantity: 2 }],
+                gpu: [{ ...COMPONENTS_DB.gpu[0], quantity: 1 }],
+                cooler: [{ ...COMPONENTS_DB.cooler[0], quantity: 2 }],
+                case: [{ ...COMPONENTS_DB.case[0], quantity: 2 }]
+            };
+
+            // Generate initial customers
+            generateCustomers();
+        }
+
+        // ==========================================
+        // GAME MECHANICS
+        // ==========================================
+
+        function generateCustomers() {
+            gameState.customers = [];
+            const numCustomers = 3 + Math.floor(gameState.shopLevel * 1.5);
+            
+            for (let i = 0; i < numCustomers; i++) {
+                const issue = DIAGNOSIS_ISSUES[Math.floor(Math.random() * DIAGNOSIS_ISSUES.length)];
+                const baseReward = 200000 + (issue.difficulty * 100000);
+                const reward = Math.floor(baseReward * (1 + gameState.reputation * 0.01));
+                
+                gameState.customers.push({
+                    id: 'cust_' + Date.now() + '_' + i,
+                    name: generateCustomerName(),
+                    issue: issue,
+                    reward: reward,
+                    deadline: 3 + Math.floor(Math.random() * 3),
+                    satisfied: false
+                });
+            }
+        }
+
+        function generateCustomerName() {
+            const firstNames = ['Budi', 'Andi', 'Siti', 'Dewi', 'Rudi', 'Wati', 'Agus', 'Sri', 'Doni', 'Maya', 'Rizki', 'Putri', 'Ahmad', 'Fatimah', 'Hendra'];
+            const lastNames = ['Santoso', 'Wijaya', 'Kusuma', 'Pratama', 'Sari', 'Hidayat', 'Nugraha', 'Putra', 'Wibowo', 'Setiawan'];
+            return firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + lastNames[Math.floor(Math.random() * lastNames.length)];
+        }
+
+        function addXP(skill, amount) {
+            const xpNeeded = 100 * gameState.skills[skill];
+            gameState.skillXP[skill] += amount;
+            
+            if (gameState.skillXP[skill] >= xpNeeded) {
+                gameState.skillXP[skill] -= xpNeeded;
+                gameState.skills[skill]++;
+                showNotification(`Skill ${skill} naik ke level ${gameState.skills[skill]}!`, 'success');
+            }
+        }
+
+        function updateMarketPrices() {
+            Object.keys(COMPONENTS_DB).forEach(type => {
+                COMPONENTS_DB[type].forEach(comp => {
+                    const basePrice = comp.price;
+                    const variation = (Math.random() - 0.5) * 0.2; // -10% to +10%
+                    const discount = Math.random() < 0.1 ? 0.8 : 1; // 10% chance of 20% discount
+                    gameState.marketPrices[type][comp.id] = Math.floor(basePrice * (1 + variation) * discount);
+                });
+            });
+        }
+
+        function getTotalInventoryCount() {
+            let total = 0;
+            Object.values(gameState.inventory).forEach(items => {
+                items.forEach(item => {
+                    total += item.quantity || 0;
+                });
+            });
+            return total;
+        }
+
+        function canAfford(amount) {
+            return gameState.money >= amount;
+        }
+
+        function spendMoney(amount) {
+            if (canAfford(amount)) {
+                gameState.money -= amount;
+                return true;
+            }
+            return false;
+        }
+
+        function earnMoney(amount) {
+            gameState.money += amount;
+            gameState.totalEarnings += amount;
+        }
+
+        function nextDay() {
+            gameState.day++;
+            
+            // Pay rent
+            const rent = SHOP_LEVELS[gameState.shopLevel].dailyRent;
+            if (rent > 0) {
+                spendMoney(rent);
+                showNotification(`Membayar sewa harian: Rp ${rent.toLocaleString('id-ID')}`, 'warning');
+            }
+            
+            // Employee salaries
+            let totalSalary = 0;
+            gameState.employees.forEach(emp => {
+                totalSalary += emp.salary;
+            });
+            if (totalSalary > 0) {
+                spendMoney(totalSalary);
+                showNotification(`Membayar gaji karyawan: Rp ${totalSalary.toLocaleString('id-ID')}`, 'warning');
+            }
+            
+            // Update market prices
+            updateMarketPrices();
+            
+            // Regenerate customers
+            generateCustomers();
+            
+            // Random events
+            if (Math.random() < 0.1) {
+                const bonus = Math.floor(Math.random() * 500000) + 100000;
+                earnMoney(bonus);
+                showNotification(`Bonus pelanggan puas: Rp ${bonus.toLocaleString('id-ID')}`, 'success');
+            }
+            
+            saveGame();
+            renderCurrentPage();
+        }
+
+        // ==========================================
+        // UI FUNCTIONS
+        // ==========================================
+
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notif.className = 'notification ' + type;
+            notif.classList.add('show');
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        function showModal(content) {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById('modalContent');
+            modal.innerHTML = content;
+            overlay.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function navigateTo(page) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            
+            // Render page
+            renderPage(page);
+        }
+
+        function renderCurrentPage() {
+            const activeNav = document.querySelector('.nav-item.active');
+            if (activeNav) {
+                renderPage(activeNav.dataset.page);
+            }
+        }
+
+        function renderPage(page) {
+            const content = document.getElementById('pageContent');
+            
+            switch(page) {
+                case 'dashboard':
+                    content.innerHTML = renderDashboard();
+                    break;
+                case 'workshop':
+                    content.innerHTML = renderWorkshop();
+                    break;
+                case 'diagnosis':
+                    content.innerHTML = renderDiagnosis();
+                    break;
+                case 'benchmark':
+                    content.innerHTML = renderBenchmark();
+                    break;
+                case 'inventory':
+                    content.innerHTML = renderInventory();
+                    break;
+                case 'marketplace':
+                    content.innerHTML = renderMarketplace();
+                    break;
+                case 'shop':
+                    content.innerHTML = renderShop();
+                    break;
+                case 'skills':
+                    content.innerHTML = renderSkills();
+                    break;
+                case 'manual':
+                    content.innerHTML = renderManual();
+                    break;
+                default:
+                    content.innerHTML = renderDashboard();
+            }
+            
+            // Animate page entrance
+            content.classList.remove('animate-fade');
+            void content.offsetWidth; // Trigger reflow
+            content.classList.add('animate-fade');
+        }
+
+        // ==========================================
+        // PAGE RENDERS
+        // ==========================================
+
+        function renderDashboard() {
+            const shopInfo = SHOP_LEVELS[gameState.shopLevel];
+            const totalComponents = getTotalInventoryCount();
+            
+            return `
+                <div class="animate-fade">
+                    <!-- Header Stats -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Dashboard</h1>
+                            <p class="text-[var(--muted)]">Selamat datang kembali, Teknisi!</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="level-badge">${shopInfo.name}</div>
+                            <div class="text-right">
+                                <p class="text-sm text-[var(--muted)]">Hari ke-${gameState.day}</p>
+                                <button class="btn btn-primary mt-1" onclick="nextDay()">
+                                    Lanjut Hari
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="card p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-lg bg-[var(--accent)] bg-opacity-20 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                    </svg>
+                                </div>
+                                <span class="text-[var(--muted)] text-sm">Saldo</span>
+                            </div>
+                            <p class="text-2xl font-bold">Rp ${gameState.money.toLocaleString('id-ID')}</p>
+                        </div>
+                        
+                        <div class="card p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-lg bg-[var(--warning)] bg-opacity-20 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                </div>
+                                <span class="text-[var(--muted)] text-sm">Reputasi</span>
+                            </div>
+                            <p class="text-2xl font-bold">${gameState.reputation} poin</p>
+                        </div>
+                        
+                        <div class="card p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-lg bg-[var(--success)] bg-opacity-20 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                </div>
+                                <span class="text-[var(--muted)] text-sm">Pekerjaan Selesai</span>
+                            </div>
+                            <p class="text-2xl font-bold">${gameState.completedJobs}</p>
+                        </div>
+                        
+                        <div class="card p-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-lg bg-[var(--danger)] bg-opacity-20 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                    </svg>
+                                </div>
+                                <span class="text-[var(--muted)] text-sm">Inventori</span>
+                            </div>
+                            <p class="text-2xl font-bold">${totalComponents}/${shopInfo.maxComponents}</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Quick Actions -->
+                        <div class="lg:col-span-2">
+                            <div class="card p-6">
+                                <h2 class="font-display text-xl font-bold mb-4">Aksi Cepat</h2>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <button class="btn btn-secondary flex flex-col items-center gap-2 py-4" onclick="navigateTo('workshop')">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                                        </svg>
+                                        <span class="text-sm">Rakit PC</span>
+                                    </button>
+                                    <button class="btn btn-secondary flex flex-col items-center gap-2 py-4" onclick="navigateTo('diagnosis')">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                        </svg>
+                                        <span class="text-sm">Diagnosa</span>
+                                    </button>
+                                    <button class="btn btn-secondary flex flex-col items-center gap-2 py-4" onclick="navigateTo('marketplace')">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="9" cy="21" r="1"/>
+                                            <circle cx="20" cy="21" r="1"/>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                        </svg>
+                                        <span class="text-sm">Belanja</span>
+                                    </button>
+                                    <button class="btn btn-secondary flex flex-col items-center gap-2 py-4" onclick="navigateTo('benchmark')">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 20V10"/>
+                                            <path d="M12 20V4"/>
+                                            <path d="M6 20v-6"/>
+                                        </svg>
+                                        <span class="text-sm">Benchmark</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills Summary -->
+                        <div class="card p-6">
+                            <h2 class="font-display text-xl font-bold mb-4">Level Skill</h2>
+                            <div class="space-y-4">
+                                ${Object.entries(gameState.skills).map(([skill, level]) => `
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span class="capitalize">${skill}</span>
+                                            <span class="text-[var(--accent)]">Lv. ${level}</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${(gameState.skillXP[skill] / (100 * level)) * 100}%"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Customers -->
+                    <div class="card p-6 mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-display text-xl font-bold">Pelanggan Menunggu</h2>
+                            <span class="stat-badge">${gameState.customers.length} pelanggan</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-[var(--muted)] text-sm border-b border-[var(--border)]">
+                                        <th class="pb-3 pr-4">Nama</th>
+                                        <th class="pb-3 pr-4">Masalah</th>
+                                        <th class="pb-3 pr-4">Deadline</th>
+                                        <th class="pb-3 pr-4">Reward</th>
+                                        <th class="pb-3">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${gameState.customers.slice(0, 5).map(cust => `
+                                        <tr class="border-b border-[var(--border)] border-opacity-50">
+                                            <td class="py-3 pr-4 font-medium">${cust.name}</td>
+                                            <td class="py-3 pr-4 text-[var(--muted)]">${cust.issue.name}</td>
+                                            <td class="py-3 pr-4">${cust.deadline} hari</td>
+                                            <td class="py-3 pr-4 text-[var(--accent)]">Rp ${cust.reward.toLocaleString('id-ID')}</td>
+                                            <td class="py-3">
+                                                <button class="btn btn-primary text-sm py-1 px-3" onclick="startDiagnosis('${cust.id}')">
+                                                    Tangani
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkshop() {
+            const build = gameState.currentBuild;
+            
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Workshop PC</h1>
+                            <p class="text-[var(--muted)]">Rakit PC komponen demi komponen</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-secondary" onclick="clearBuild()">Reset Build</button>
+                            <button class="btn btn-primary" onclick="completeBuild()" ${!isBuildComplete() ? 'disabled' : ''}>
+                                Selesai Rakit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Component Slots -->
+                        <div class="lg:col-span-2">
+                            <div class="card p-6">
+                                <h2 class="font-display text-lg font-bold mb-4">Slot Komponen</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${Object.entries(COMPONENT_TYPES).map(([type, name]) => `
+                                        <div class="component-slot ${build[type] ? 'filled' : ''}" onclick="selectComponent('${type}')">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <span class="text-sm font-medium text-[var(--muted)]">${name}</span>
+                                                ${build[type] ? `<span class="text-xs text-[var(--accent)]">Terpasang</span>` : ''}
+                                            </div>
+                                            ${build[type] ? `
+                                                <div class="mt-2">
+                                                    <p class="font-medium">${build[type].name}</p>
+                                                    <p class="text-xs text-[var(--muted)]">${build[type].brand}</p>
+                                                    <div class="flex gap-2 mt-2">
+                                                        <span class="stat-badge text-xs">Perf: ${build[type].performance}</span>
+                                                        ${build[type].power ? `<span class="stat-badge text-xs">${build[type].power}W</span>` : ''}
+                                                    </div>
+                                                </div>
+                                            ` : `
+                                                <div class="flex items-center justify-center h-8 text-[var(--muted)]">
+                                                    <span class="text-sm">Klik untuk memilih</span>
+                                                </div>
+                                            `}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Compatibility Check -->
+                            <div class="card p-6 mt-6">
+                                <h2 class="font-display text-lg font-bold mb-4">Cek Kompatibilitas</h2>
+                                ${renderCompatibilityCheck(build)}
+                            </div>
+                        </div>
+
+                        <!-- Build Summary -->
+                        <div>
+                            <div class="card p-6 sticky top-6">
+                                <h2 class="font-display text-lg font-bold mb-4">Ringkasan Build</h2>
+                                
+                                <div class="space-y-4 mb-6">
+                                    <div>
+                                        <span class="text-sm text-[var(--muted)]">Total Performa</span>
+                                        <p class="text-2xl font-bold text-[var(--accent)]">${calculateTotalPerformance(build)}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-[var(--muted)]">Total Daya</span>
+                                        <p class="text-xl font-bold">${calculateTotalPower(build)}W</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-[var(--muted)]">Estimasi Harga Jual</span>
+                                        <p class="text-xl font-bold">Rp ${calculateBuildPrice(build).toLocaleString('id-ID')}</p>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-[var(--border)] pt-4">
+                                    <h3 class="font-medium mb-2">Progress</h3>
+                                    <div class="progress-bar mb-2">
+                                        <div class="progress-fill" style="width: ${(Object.values(build).filter(v => v !== null).length / 8) * 100}%"></div>
+                                    </div>
+                                    <p class="text-sm text-[var(--muted)]">${Object.values(build).filter(v => v !== null).length}/8 komponen terpasang</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCompatibilityCheck(build) {
+            const issues = [];
+            
+            // Check CPU-Motherboard socket
+            if (build.cpu && build.motherboard) {
+                if (build.cpu.socket !== build.motherboard.socket) {
+                    issues.push({
+                        type: 'error',
+                        message: `Socket tidak cocok! CPU ${build.cpu.socket} vs Motherboard ${build.motherboard.socket}`
+                    });
+                }
+            }
+            
+            // Check PSU wattage
+            const totalPower = calculateTotalPower(build);
+            if (build.psu && totalPower > build.psu.wattage) {
+                issues.push({
+                    type: 'error',
+                    message: `PSU tidak cukup! Butuh ${totalPower}W, PSU hanya ${build.psu.wattage}W`
+                });
+            }
+            
+            // Check RAM type
+            if (build.ram && build.motherboard) {
+                // Simplified check - in real game would check MB RAM support
+            }
+            
+            // Check cooler TDP
+            if (build.cpu && build.cooler) {
+                if (build.cpu.power > build.cooler.tdp) {
+                    issues.push({
+                        type: 'warning',
+                        message: `Cooler mungkin kurang powerful untuk CPU ini (TDP ${build.cooler.tdp}W vs ${build.cpu.power}W)`
+                    });
+                }
+            }
+
+            if (issues.length === 0 && Object.values(build).some(v => v !== null)) {
+                return `
+                    <div class="flex items-center gap-3 text-[var(--success)]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>Semua komponen kompatibel!</span>
+                    </div>
+                `;
+            } else if (issues.length === 0) {
+                return `<p class="text-[var(--muted)]">Pilih komponen untuk melihat kompatibilitas</p>`;
+            }
+
+            return issues.map(issue => `
+                <div class="flex items-start gap-3 ${issue.type === 'error' ? 'text-[var(--danger)]' : 'text-[var(--warning)]'}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span class="text-sm">${issue.message}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderDiagnosis() {
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Diagnosa Kerusakan</h1>
+                            <p class="text-[var(--muted)]">Troubleshoot masalah PC pelanggan</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Customer Queue -->
+                        <div class="card p-6">
+                            <h2 class="font-display text-lg font-bold mb-4">Antrian Pelanggan</h2>
+                            <div class="space-y-3">
+                                ${gameState.customers.map(cust => `
+                                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 cursor-pointer hover:border-[var(--accent)] border border-transparent transition-all" onclick="startDiagnosis('${cust.id}')">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="font-medium">${cust.name}</span>
+                                            <span class="text-sm text-[var(--accent)]">Rp ${cust.reward.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <p class="text-sm text-[var(--muted)] mb-2">Masalah: ${cust.issue.name}</p>
+                                        <div class="flex gap-2">
+                                            <span class="stat-badge text-xs">Deadline: ${cust.deadline} hari</span>
+                                            <span class="stat-badge text-xs">Level ${cust.issue.difficulty}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Diagnosis Info -->
+                        <div class="card p-6">
+                            <h2 class="font-display text-lg font-bold mb-4">Panduan Diagnosa</h2>
+                            <div class="space-y-4">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+                                    <h3 class="font-medium mb-2">Langkah Diagnosa</h3>
+                                    <ol class="text-sm text-[var(--muted)] space-y-2">
+                                        <li>1. Periksa gejala yang dilaporkan pelanggan</li>
+                                        <li>2. Identifikasi kemungkinan penyebab</li>
+                                        <li>3. Pilih diagnosa yang tepat</li>
+                                        <li>4. Lakukan perbaikan</li>
+                                    </ol>
+                                </div>
+                                
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+                                    <h3 class="font-medium mb-2">Tips</h3>
+                                    <ul class="text-sm text-[var(--muted)] space-y-2">
+                                        <li>- Skill Repair meningkatkan akurasi diagnosa</li>
+                                        <li>- Diagnosa salah akan mengurangi reward</li>
+                                        <li>- Pelanggan tidak sabar akan pergi</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBenchmark() {
+            const build = gameState.currentBuild;
+            const hasComponents = Object.values(build).some(v => v !== null);
+            
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Benchmark</h1>
+                            <p class="text-[var(--muted)]">Uji performa PC Anda</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="runBenchmark()" ${!hasComponents ? 'disabled' : ''}>
+                            Jalankan Benchmark
+                        </button>
+                    </div>
+
+                    ${hasComponents ? `
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Performance Metrics -->
+                            <div class="card p-6">
+                                <h2 class="font-display text-lg font-bold mb-4">Skor Performa</h2>
+                                <div class="space-y-6" id="benchmarkResults">
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span>CPU Score</span>
+                                            <span class="font-bold text-[var(--accent)]" id="cpuScore">-</span>
+                                        </div>
+                                        <div class="benchmark-bar">
+                                            <div class="benchmark-fill" id="cpuBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span>GPU Score</span>
+                                            <span class="font-bold text-[var(--accent)]" id="gpuScore">-</span>
+                                        </div>
+                                        <div class="benchmark-bar">
+                                            <div class="benchmark-fill" id="gpuBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span>RAM Score</span>
+                                            <span class="font-bold text-[var(--accent)]" id="ramScore">-</span>
+                                        </div>
+                                        <div class="benchmark-bar">
+                                            <div class="benchmark-fill" id="ramBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-2">
+                                            <span>Storage Score</span>
+                                            <span class="font-bold text-[var(--accent)]" id="storageScore">-</span>
+                                        </div>
+                                        <div class="benchmark-bar">
+                                            <div class="benchmark-fill" id="storageBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gaming FPS -->
+                            <div class="card p-6">
+                                <h2 class="font-display text-lg font-bold mb-4">Estimasi FPS Gaming</h2>
+                                <div class="space-y-4" id="fpsResults">
+                                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+                                        <div class="flex justify-between items-center">
+                                            <span>1080p Ultra</span>
+                                            <span class="text-xl font-bold" id="fps1080">- FPS</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+                                        <div class="flex justify-between items-center">
+                                            <span>1440p High</span>
+                                            <span class="text-xl font-bold" id="fps1440">- FPS</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+                                        <div class="flex justify-between items-center">
+                                            <span>4K Medium</span>
+                                            <span class="text-xl font-bold" id="fps4k">- FPS</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Temperature -->
+                                <div class="mt-6">
+                                    <h3 class="font-medium mb-3">Estimasi Temperatur</h3>
+                                    <div class="temp-gauge">
+                                        <div class="temp-indicator" id="tempIndicator" style="left: 50%"></div>
+                                    </div>
+                                    <div class="flex justify-between mt-2 text-sm text-[var(--muted)]">
+                                        <span>30C</span>
+                                        <span id="tempValue">50C</span>
+                                        <span>100C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="card p-12 text-center">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1" class="mx-auto mb-4">
+                                <path d="M18 20V10"/>
+                                <path d="M12 20V4"/>
+                                <path d="M6 20v-6"/>
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2">Belum Ada PC</h3>
+                            <p class="text-[var(--muted)]">Rakit PC di Workshop terlebih dahulu untuk menjalankan benchmark</p>
+                            <button class="btn btn-primary mt-4" onclick="navigateTo('workshop')">
+                                Ke Workshop
+                            </button>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function renderInventory() {
+            const totalItems = getTotalInventoryCount();
+            const maxItems = SHOP_LEVELS[gameState.shopLevel].maxComponents;
+            
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Inventori</h1>
+                            <p class="text-[var(--muted)]">Kelola stok komponen Anda</p>
+                        </div>
+                        <div class="stat-badge text-base">
+                            ${totalItems}/${maxItems} slot terpakai
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        ${Object.entries(COMPONENT_TYPES).map(([type, name]) => {
+                            const items = gameState.inventory[type] || [];
+                            return `
+                                <div class="card">
+                                    <div class="p-4 border-b border-[var(--border)]">
+                                        <h3 class="font-display font-bold">${name}</h3>
+                                    </div>
+                                    <div class="p-4">
+                                        ${items.length > 0 ? `
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                ${items.map((item, idx) => `
+                                                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-3">
+                                                        <div class="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <p class="font-medium text-sm">${item.name}</p>
+                                                                <p class="text-xs text-[var(--muted)]">${item.brand}</p>
+                                                            </div>
+                                                            <span class="quality-${item.quality} text-xs font-bold">${item.quality.toUpperCase()}</span>
+                                                        </div>
+                                                        <div class="flex items-center justify-between mt-2">
+                                                            <span class="stat-badge">x${item.quantity}</span>
+                                                            <button class="btn btn-secondary text-xs py-1 px-2" onclick="sellComponent('${type}', ${idx})">
+                                                                Jual
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : `
+                                            <p class="text-[var(--muted)] text-center py-4">Tidak ada stok</p>
+                                        `}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMarketplace() {
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Marketplace</h1>
+                            <p class="text-[var(--muted)]">Beli komponen untuk stok toko Anda</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-[var(--muted)]">Saldo:</span>
+                            <span class="font-bold text-[var(--accent)]">Rp ${gameState.money.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="flex overflow-x-auto border-b border-[var(--border)] mb-6" id="marketTabs">
+                        ${Object.entries(COMPONENT_TYPES).map(([type, name], idx) => `
+                            <button class="tab-btn ${idx === 0 ? 'active' : ''}" onclick="switchMarketTab('${type}')">
+                                ${name}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div id="marketProducts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${renderMarketProducts('cpu')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMarketProducts(type) {
+            const products = COMPONENTS_DB[type];
+            
+            return products.map(product => {
+                const price = gameState.marketPrices[type][product.id];
+                const originalPrice = product.price;
+                const discount = price < originalPrice;
+                
+                return `
+                    <div class="card p-5">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="font-medium">${product.name}</p>
+                                <p class="text-sm text-[var(--muted)]">${product.brand}</p>
+                            </div>
+                            <span class="quality-${product.quality} text-xs font-bold">${product.quality.toUpperCase()}</span>
+                        </div>
+                        
+                        <div class="flex gap-2 mb-3">
+                            <span class="stat-badge">Perf: ${product.performance}</span>
+                            ${product.power ? `<span class="stat-badge">${product.power}W</span>` : ''}
+                            ${product.socket ? `<span class="stat-badge">${product.socket}</span>` : ''}
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                ${discount ? `
+                                    <span class="text-xs line-through text-[var(--muted)]">Rp ${originalPrice.toLocaleString('id-ID')}</span>
+                                    <span class="text-xs text-[var(--success)] ml-1">DISKON!</span>
+                                ` : ''}
+                                <p class="font-bold text-[var(--accent)]">Rp ${price.toLocaleString('id-ID')}</p>
+                            </div>
+                            <button class="btn btn-primary text-sm" onclick="buyComponent('${type}', '${product.id}')" ${!canAfford(price) ? 'disabled' : ''}>
+                                Beli
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderShop() {
+            const currentLevel = SHOP_LEVELS[gameState.shopLevel];
+            const nextLevel = SHOP_LEVELS[gameState.shopLevel + 1];
+            const upgradeCost = nextLevel ? (gameState.shopLevel + 1) * 5000000 : 0;
+            
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Toko Saya</h1>
+                            <p class="text-[var(--muted)]">Kelola dan kembangkan bisnis Anda</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Shop Info -->
+                        <div class="card p-6">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-16 h-16 rounded-xl bg-[var(--accent)] bg-opacity-20 flex items-center justify-center text-3xl">
+                                    ${currentLevel.icon}
+                                </div>
+                                <div>
+                                    <h2 class="font-display text-xl font-bold">${currentLevel.name}</h2>
+                                    <p class="text-[var(--muted)]">Level ${gameState.shopLevel + 1}/5</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <span class="text-[var(--muted)]">Kapasitas Inventori</span>
+                                    <span class="font-medium">${currentLevel.maxComponents} item</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-[var(--muted)]">Maks Karyawan</span>
+                                    <span class="font-medium">${currentLevel.maxEmployees} orang</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-[var(--muted)]">Sewa Harian</span>
+                                    <span class="font-medium">Rp ${currentLevel.dailyRent.toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+
+                            ${nextLevel ? `
+                                <div class="border-t border-[var(--border)] mt-6 pt-6">
+                                    <h3 class="font-medium mb-3">Upgrade ke ${nextLevel.name}</h3>
+                                    <p class="text-sm text-[var(--muted)] mb-4">
+                                        Biaya: Rp ${upgradeCost.toLocaleString('id-ID')}
+                                    </p>
+                                    <button class="btn btn-primary w-full" onclick="upgradeShop()" ${!canAfford(upgradeCost) ? 'disabled' : ''}>
+                                        Upgrade Toko
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="border-t border-[var(--border)] mt-6 pt-6 text-center">
+                                    <p class="text-[var(--accent)] font-medium">Toko sudah level maksimal!</p>
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Employees -->
+                        <div class="card p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="font-display text-lg font-bold">Karyawan</h2>
+                                <span class="stat-badge">${gameState.employees.length}/${currentLevel.maxEmployees}</span>
+                            </div>
+
+                            ${gameState.employees.length > 0 ? `
+                                <div class="space-y-3 mb-4">
+                                    ${gameState.employees.map((emp, idx) => `
+                                        <div class="bg-[var(--bg-tertiary)] rounded-lg p-3">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <p class="font-medium">${emp.name}</p>
+                                                    <p class="text-xs text-[var(--muted)]">Skill: ${emp.skill}</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm">Rp ${emp.salary.toLocaleString('id-ID')}/hari</p>
+                                                    <button class="text-xs text-[var(--danger)]" onclick="fireEmployee(${idx})">Pecat</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : `
+                                <p class="text-[var(--muted)] text-center py-4">Belum ada karyawan</p>
+                            `}
+
+                            ${currentLevel.maxEmployees > gameState.employees.length ? `
+                                <button class="btn btn-secondary w-full" onclick="hireEmployee()">
+                                    Rekrut Karyawan
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="card p-6 mt-6">
+                        <h2 class="font-display text-lg font-bold mb-4">Statistik Bisnis</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-[var(--accent)]">${gameState.completedJobs}</p>
+                                <p class="text-sm text-[var(--muted)]">Pekerjaan Selesai</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-[var(--success)]">Rp ${gameState.totalEarnings.toLocaleString('id-ID')}</p>
+                                <p class="text-sm text-[var(--muted)]">Total Pendapatan</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold">${gameState.reputation}</p>
+                                <p class="text-sm text-[var(--muted)]">Reputasi</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold">${gameState.branches}</p>
+                                <p class="text-sm text-[var(--muted)]">Cabang</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSkills() {
+            const skillInfo = {
+                repair: {
+                    name: 'Repair Skill',
+                    desc: 'Meningkatkan akurasi diagnosa dan kecepatan perbaikan',
+                    icon: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'
+                },
+                assembly: {
+                    name: 'Assembly Skill',
+                    desc: 'Meningkatkan kecepatan dan kualitas perakitan PC',
+                    icon: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>'
+                },
+                sales: {
+                    name: 'Sales Skill',
+                    desc: 'Meningkatkan harga jual dan jumlah pelanggan',
+                    icon: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>'
+                },
+                management: {
+                    name: 'Management Skill',
+                    desc: 'Meningkatkan efisiensi operasional toko',
+                    icon: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'
+                }
+            };
+
+            return `
+                <div class="animate-fade">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Skills</h1>
+                            <p class="text-[var(--muted)]">Tingkatkan kemampuan Anda</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${Object.entries(gameState.skills).map(([skill, level]) => {
+                            const info = skillInfo[skill];
+                            const xpNeeded = 100 * level;
+                            const progress = (gameState.skillXP[skill] / xpNeeded) * 100;
+                            
+                            return `
+                                <div class="card p-6">
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-12 h-12 rounded-xl bg-[var(--accent)] bg-opacity-20 flex items-center justify-center">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                                                ${info.icon}
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-display font-bold">${info.name}</h3>
+                                            <p class="text-sm text-[var(--muted)]">Level ${level}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-sm text-[var(--muted)] mb-4">${info.desc}</p>
+                                    
+                                    <div class="mb-2">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span>XP</span>
+                                            <span>${gameState.skillXP[skill]}/${xpNeeded}</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${progress}%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 p-3 bg-[var(--bg-tertiary)] rounded-lg">
+                                        <p class="text-xs text-[var(--muted)]">
+                                            ${getSkillBonus(skill, level)}
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSkillBonus(skill, level) {
+            const bonuses = {
+                repair: `+${level * 10}% akurasi diagnosa`,
+                assembly: `+${level * 15}% kecepatan rakit`,
+                sales: `+${level * 5}% harga jual`,
+                management: `+${level * 8}% efisiensi operasional`
+            };
+            return bonuses[skill];
+        }
+
+        function renderManual() {
+            return `
+                <div class="animate-fade">
+                    <div class="mb-8">
+                        <h1 class="font-display text-3xl font-bold mb-2">Manual Book</h1>
+                        <p class="text-[var(--muted)]">Panduan lengkap bermain PC Builder Career Simulator</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Getting Started -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">1. Memulai Game</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Anda memulai sebagai teknisi komputer rumahan dengan modal Rp 5.000.000 dan beberapa komponen dasar.</p>
+                                    <p><strong>Tujuan:</strong> Kembangkan bisnis dari garasi rumah menjadi retail nasional!</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li>Modal awal: Rp 5.000.000</li>
+                                        <li>Level toko: Garasi Rumah</li>
+                                        <li>Inventori: 20 slot</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workshop -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">2. Workshop PC</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Rakit PC dengan memilih komponen untuk setiap slot:</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li><strong>CPU</strong> - Otak komputer, tentukan socket yang cocok</li>
+                                        <li><strong>Motherboard</strong> - Harus cocok dengan CPU socket</li>
+                                        <li><strong>RAM</strong> - Memori sistem</li>
+                                        <li><strong>Storage</strong> - SSD/HDD untuk penyimpanan</li>
+                                        <li><strong>PSU</strong> - Harus cukup untuk total daya sistem</li>
+                                        <li><strong>GPU</strong> - Kartu grafis untuk gaming</li>
+                                        <li><strong>CPU Cooler</strong> - Pendingin CPU</li>
+                                        <li><strong>Case</strong> - Rumah komponen</li>
+                                    </ul>
+                                    <p class="text-[var(--warning)]">Perhatikan kompatibilitas! Socket CPU dan motherboard harus sama.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diagnosis -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">3. Diagnosa Kerusakan</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Pelanggan akan datang dengan berbagai masalah PC:</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li><strong>Tidak Menyala</strong> - Cek PSU, kabel power, motherboard</li>
+                                        <li><strong>Overheating</strong> - Cek cooler, thermal paste, debu</li>
+                                        <li><strong>Blue Screen</strong> - Cek RAM, driver, CPU</li>
+                                        <li><strong>No Display</strong> - Cek GPU, RAM, kabel</li>
+                                        <li><strong>Random Crash</strong> - Cek PSU, RAM, motherboard</li>
+                                    </ul>
+                                    <p class="text-[var(--danger)]">Diagnosa salah akan mengurangi reward dan reputasi!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Benchmark -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">4. Benchmark</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Uji performa PC yang sudah dirakit:</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li><strong>CPU Score</strong> - Performa prosesor</li>
+                                        <li><strong>GPU Score</strong> - Performa kartu grafis</li>
+                                        <li><strong>FPS Gaming</strong> - Estimasi frame rate di berbagai resolusi</li>
+                                        <li><strong>Temperatur</strong> - Suhu sistem</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">5. Manajemen Bisnis</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Kembangkan toko Anda melalui 5 level:</p>
+                                    <ol class="list-decimal list-inside text-[var(--muted)] space-y-1">
+                                        <li><strong>Garasi Rumah</strong> - 20 slot, 0 karyawan</li>
+                                        <li><strong>Toko Kecil</strong> - 50 slot, 1 karyawan</li>
+                                        <li><strong>Toko Menengah</strong> - 100 slot, 3 karyawan</li>
+                                        <li><strong>Toko Besar</strong> - 250 slot, 6 karyawan</li>
+                                        <li><strong>Retail Nasional</strong> - 500 slot, 15 karyawan</li>
+                                    </ol>
+                                    <p>Setiap level membutuhkan biaya upgrade yang lebih besar.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marketplace -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">6. Marketplace</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Beli komponen dari marketplace:</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li>Harga berubah setiap hari (-10% sampai +10%)</li>
+                                        <li>Ada kesempatan diskon 20% secara random</li>
+                                        <li>Komponen memiliki kualitas: Low, Mid, High, Legendary</li>
+                                    </ul>
+                                    <p class="text-[var(--success)]">Tips: Beli saat diskon untuk margin lebih besar!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">7. Skill System</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <p>Ada 4 skill yang bisa ditingkatkan:</p>
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-1">
+                                        <li><strong>Repair</strong> - Tingkat dengan mendiagnosa pelanggan</li>
+                                        <li><strong>Assembly</strong> - Tingkat dengan merakit PC</li>
+                                        <li><strong>Sales</strong> - Tingkat dengan menjual komponen/PC</li>
+                                        <li><strong>Management</strong> - Tingkat dengan mengelola toko</li>
+                                    </ul>
+                                    <p>XP dibutuhkan untuk level up: 100 x Level saat ini</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tips -->
+                        <div class="card">
+                            <button class="w-full p-4 flex justify-between items-center" onclick="toggleManualSection(this)">
+                                <span class="font-display font-bold">8. Tips Bermain</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transform transition-transform">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                            <div class="px-4 pb-4 hidden">
+                                <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-sm space-y-3">
+                                    <ul class="list-disc list-inside text-[var(--muted)] space-y-2">
+                                        <li>Simpan game secara berkala untuk menghindari kehilangan progress</li>
+                                        <li>Perhatikan deadline pelanggan - pelanggan tidak sabar akan pergi</li>
+                                        <li>Upgrade toko secepat mungkin untuk kapasitas lebih besar</li>
+                                        <li>Rekrut karyawan untuk membantu pekerjaan</li>
+                                        <li>Beli komponen saat diskon untuk margin lebih tinggi</li>
+                                        <li>Tingkatkan skill untuk bonus yang lebih besar</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleManualSection(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+            
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+
+        // ==========================================
+        // GAME ACTIONS
+        // ==========================================
+
+        function selectComponent(type) {
+            const inventory = gameState.inventory[type] || [];
+            
+            if (inventory.length === 0) {
+                showNotification('Tidak ada komponen di inventori!', 'error');
+                return;
+            }
+
+            const content = `
+                <div class="p-6">
+                    <h2 class="font-display text-xl font-bold mb-4">Pilih ${COMPONENT_TYPES[type]}</h2>
+                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                        ${inventory.map((item, idx) => `
+                            <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 cursor-pointer hover:border-[var(--accent)] border border-transparent transition-all" onclick="installComponent('${type}', ${idx})">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium">${item.name}</p>
+                                        <p class="text-sm text-[var(--muted)]">${item.brand}</p>
+                                    </div>
+                                    <span class="quality-${item.quality} text-xs font-bold">${item.quality.toUpperCase()}</span>
+                                </div>
+                                <div class="flex gap-2 mt-2">
+                                    <span class="stat-badge text-xs">Perf: ${item.performance}</span>
+                                    ${item.socket ? `<span class="stat-badge text-xs">${item.socket}</span>` : ''}
+                                    ${item.power ? `<span class="stat-badge text-xs">${item.power}W</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn btn-secondary w-full mt-4" onclick="closeModal()">Batal</button>
+                </div>
+            `;
+            
+            showModal(content);
+        }
+
+        function installComponent(type, idx) {
+            const inventory = gameState.inventory[type];
+            if (!inventory || !inventory[idx]) return;
+            
+            // Return previously installed component if any
+            if (gameState.currentBuild[type]) {
+                addToInventory(type, gameState.currentBuild[type]);
+            }
+            
+            // Install new component
+            gameState.currentBuild[type] = { ...inventory[idx] };
+            
+            // Remove from inventory
+            if (inventory[idx].quantity > 1) {
+                inventory[idx].quantity--;
+            } else {
+                inventory.splice(idx, 1);
+            }
+            
+            addXP('assembly', 10);
+            closeModal();
+            renderCurrentPage();
+        }
+
+        function addToInventory(type, component) {
+            const inventory = gameState.inventory[type] || [];
+            const existing = inventory.find(i => i.id === component.id);
+            
+            if (existing) {
+                existing.quantity++;
+            } else {
+                inventory.push({ ...component, quantity: 1 });
+            }
+            
+            gameState.inventory[type] = inventory;
+        }
+
+        function clearBuild() {
+            // Return all components to inventory
+            Object.keys(gameState.currentBuild).forEach(type => {
+                if (gameState.currentBuild[type]) {
+                    addToInventory(type, gameState.currentBuild[type]);
+                    gameState.currentBuild[type] = null;
+                }
+            });
+            
+            renderCurrentPage();
+            showNotification('Build telah direset', 'warning');
+        }
+
+        function isBuildComplete() {
+            return Object.values(gameState.currentBuild).every(v => v !== null);
+        }
+
+        function calculateTotalPerformance(build) {
+            let total = 0;
+            Object.values(build).forEach(comp => {
+                if (comp) total += comp.performance || 0;
+            });
+            return Math.floor(total / 8);
+        }
+
+        function calculateTotalPower(build) {
+            let total = 50; // Base system power
+            Object.values(build).forEach(comp => {
+                if (comp && comp.power) total += comp.power;
+            });
+            return total;
+        }
+
+        function calculateBuildPrice(build) {
+            let total = 0;
+            Object.values(build).forEach(comp => {
+                if (comp) total += comp.price || 0;
+            });
+            // Add assembly fee
+            total = Math.floor(total * 1.2);
+            return total;
+        }
+
+        function completeBuild() {
+            if (!isBuildComplete()) {
+                showNotification('Lengkapi semua komponen terlebih dahulu!', 'error');
+                return;
+            }
+
+            // Check compatibility issues
+            const build = gameState.currentBuild;
+            let hasErrors = false;
+
+            if (build.cpu && build.motherboard && build.cpu.socket !== build.motherboard.socket) {
+                hasErrors = true;
+            }
+
+            const totalPower = calculateTotalPower(build);
+            if (build.psu && totalPower > build.psu.wattage) {
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                showNotification('Ada masalah kompatibilitas! Periksa kembali build Anda.', 'error');
+                return;
+            }
+
+            const price = calculateBuildPrice(build);
+            const bonus = Math.floor(price * 0.1 * (1 + gameState.skills.assembly * 0.05));
+            
+            earnMoney(price + bonus);
+            gameState.completedJobs++;
+            gameState.reputation += 5;
+            addXP('assembly', 50);
+            addXP('sales', 30);
+
+            // Clear build
+            Object.keys(gameState.currentBuild).forEach(type => {
+                gameState.currentBuild[type] = null;
+            });
+
+            showNotification(`PC terjual! +Rp ${(price + bonus).toLocaleString('id-ID')}`, 'success');
+            renderCurrentPage();
+        }
+
+        function startDiagnosis(customerId) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) return;
+
+            const content = `
+                <div class="p-6">
+                    <h2 class="font-display text-xl font-bold mb-4">Diagnosa: ${customer.name}</h2>
+                    
+                    <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 mb-4">
+                        <h3 class="font-medium mb-2">Gejala yang dilaporkan:</h3>
+                        <ul class="text-sm text-[var(--muted)] space-y-1">
+                            ${customer.issue.symptoms.map(s => `<li>- ${s}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="font-medium mb-2">Pilih diagnosa:</h3>
+                        <div class="space-y-2">
+                            ${['psu', 'motherboard', 'ram', 'gpu', 'cpu', 'storage', 'cooler'].map(cause => `
+                                <button class="w-full bg-[var(--bg-tertiary)] hover:bg-[var(--card)] border border-[var(--border)] hover:border-[var(--accent)] rounded-lg p-3 text-left transition-all" onclick="performDiagnosis('${customerId}', '${cause}')">
+                                    <span class="capitalize">${COMPONENT_TYPES[cause] || cause}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between text-sm">
+                        <span class="text-[var(--muted)]">Reward: <span class="text-[var(--accent)]">Rp ${customer.reward.toLocaleString('id-ID')}</span></span>
+                        <span class="text-[var(--muted)]">Deadline: ${customer.deadline} hari</span>
+                    </div>
+                    
+                    <button class="btn btn-secondary w-full mt-4" onclick="closeModal()">Batal</button>
+                </div>
+            `;
+            
+            showModal(content);
+        }
+
+        function performDiagnosis(customerId, diagnosis) {
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) return;
+
+            const correctCauses = customer.issue.possibleCauses;
+            const isCorrect = correctCauses.includes(diagnosis);
+            
+            let reward = customer.reward;
+            if (!isCorrect) {
+                reward = Math.floor(reward * 0.5);
+                showNotification('Diagnosa kurang tepat. Reward dikurangi 50%', 'warning');
+            } else {
+                showNotification('Diagnosa tepat!', 'success');
+            }
+
+            // Apply skill bonus
+            const skillBonus = 1 + (gameState.skills.repair * 0.1);
+            reward = Math.floor(reward * skillBonus);
+
+            earnMoney(reward);
+            gameState.completedJobs++;
+            gameState.reputation += isCorrect ? 3 : 1;
+            addXP('repair', isCorrect ? 30 : 10);
+
+            // Remove customer
+            const idx = gameState.customers.findIndex(c => c.id === customerId);
+            if (idx > -1) gameState.customers.splice(idx, 1);
+
+            closeModal();
+            renderCurrentPage();
+        }
+
+        function runBenchmark() {
+            const build = gameState.currentBuild;
+            const hasComponents = Object.values(build).some(v => v !== null);
+            
+            if (!hasComponents) {
+                showNotification('Tidak ada komponen untuk di-benchmark!', 'error');
+                return;
+            }
+
+            // Calculate scores
+            const cpuScore = build.cpu ? build.cpu.performance * 10 : 0;
+            const gpuScore = build.gpu ? build.gpu.performance * 10 : 0;
+            const ramScore = build.ram ? build.ram.performance * 8 : 0;
+            const storageScore = build.storage ? build.storage.performance * 6 : 0;
+            
+            const gpuPerf = build.gpu ? build.gpu.performance : 10;
+            const fps1080 = Math.floor(gpuPerf * 1.44);
+            const fps1440 = Math.floor(gpuPerf * 0.95);
+            const fps4k = Math.floor(gpuPerf * 0.48);
+
+            let temp = 45;
+            if (build.cpu) temp += build.cpu.power / 10;
+            if (build.cooler) temp -= build.cooler.performance / 10;
+            temp = Math.max(30, Math.min(90, temp));
+
+            // Animate results
+            setTimeout(() => {
+                document.getElementById('cpuScore').textContent = cpuScore;
+                document.getElementById('cpuBar').style.width = cpuScore + '%';
+            }, 200);
+            
+            setTimeout(() => {
+                document.getElementById('gpuScore').textContent = gpuScore;
+                document.getElementById('gpuBar').style.width = gpuScore + '%';
+            }, 400);
+            
+            setTimeout(() => {
+                document.getElementById('ramScore').textContent = ramScore;
+                document.getElementById('ramBar').style.width = ramScore + '%';
+            }, 600);
+            
+            setTimeout(() => {
+                document.getElementById('storageScore').textContent = storageScore;
+                document.getElementById('storageBar').style.width = storageScore + '%';
+            }, 800);
+            
+            setTimeout(() => {
+                document.getElementById('fps1080').textContent = fps1080 + ' FPS';
+                document.getElementById('fps1440').textContent = fps1440 + ' FPS';
+                document.getElementById('fps4k').textContent = fps4k + ' FPS';
+            }, 1000);
+            
+            setTimeout(() => {
+                document.getElementById('tempValue').textContent = temp + 'C';
+                document.getElementById('tempIndicator').style.left = temp + '%';
+            }, 1200);
+
+            addXP('assembly', 5);
+        }
+
+        function switchMarketTab(type) {
+            document.querySelectorAll('#marketTabs .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === COMPONENT_TYPES[type]) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.getElementById('marketProducts').innerHTML = renderMarketProducts(type);
+        }
+
+        function buyComponent(type, id) {
+            const price = gameState.marketPrices[type][id];
+            const component = COMPONENTS_DB[type].find(c => c.id === id);
+            
+            if (!canAfford(price)) {
+                showNotification('Uang tidak cukup!', 'error');
+                return;
+            }
+
+            const shopInfo = SHOP_LEVELS[gameState.shopLevel];
+            if (getTotalInventoryCount() >= shopInfo.maxComponents) {
+                showNotification('Inventori penuh!', 'error');
+                return;
+            }
+
+            spendMoney(price);
+            addToInventory(type, component);
+            addXP('management', 5);
+            
+            showNotification(`${component.name} berhasil dibeli!`, 'success');
+            renderCurrentPage();
+        }
+
+        function sellComponent(type, idx) {
+            const inventory = gameState.inventory[type];
+            if (!inventory || !inventory[idx]) return;
+            
+            const item = inventory[idx];
+            const sellPrice = Math.floor(item.price * 0.7 * (1 + gameState.skills.sales * 0.05));
+            
+            earnMoney(sellPrice);
+            addXP('sales', 10);
+            
+            if (item.quantity > 1) {
+                item.quantity--;
+            } else {
+                inventory.splice(idx, 1);
+            }
+            
+            showNotification(`${item.name} terjual! +Rp ${sellPrice.toLocaleString('id-ID')}`, 'success');
+            renderCurrentPage();
+        }
+
+        function upgradeShop() {
+            const nextLevel = SHOP_LEVELS[gameState.shopLevel + 1];
+            if (!nextLevel) return;
+            
+            const cost = (gameState.shopLevel + 1) * 5000000;
+            
+            if (!canAfford(cost)) {
+                showNotification('Uang tidak cukup untuk upgrade!', 'error');
+                return;
+            }
+            
+            spendMoney(cost);
+            gameState.shopLevel++;
+            addXP('management', 100);
+            
+            showNotification(`Toko upgraded ke ${nextLevel.name}!`, 'success');
+            renderCurrentPage();
+        }
+
+        function hireEmployee() {
+            const names = ['Budi', 'Andi', 'Siti', 'Dewi', 'Rudi', 'Wati', 'Agus', 'Sri'];
+            const skills = ['Junior', 'Mid-level', 'Senior'];
+            
+            const skillIdx = Math.floor(Math.random() * 3);
+            const salary = (skillIdx + 1) * 100000;
+            
+            const employee = {
+                name: names[Math.floor(Math.random() * names.length)],
+                skill: skills[skillIdx],
+                salary: salary
+            };
+            
+            gameState.employees.push(employee);
+            addXP('management', 20);
+            
+            showNotification(`${employee.name} (${employee.skill}) direkrut!`, 'success');
+            renderCurrentPage();
+        }
+
+        function fireEmployee(idx) {
+            const emp = gameState.employees[idx];
+            gameState.employees.splice(idx, 1);
+            showNotification(`${emp.name} diberhentikan`, 'warning');
+            renderCurrentPage();
+        }
+
+        // ==========================================
+        // SAVE/LOAD
+        // ==========================================
+
+        function saveGame() {
+            localStorage.setItem('pcBuilderSave', JSON.stringify(gameState));
+            showNotification('Game berhasil disimpan!', 'success');
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('pcBuilderSave');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                gameState = { ...gameState, ...parsed };
+                
+                // Ensure inventory structure
+                if (!gameState.inventory || Object.keys(gameState.inventory).length === 0) {
+                    initializeGameState();
+                }
+                
+                // Generate customers if none
+                if (!gameState.customers || gameState.customers.length === 0) {
+                    generateCustomers();
+                }
+            } else {
+                initializeGameState();
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        function init() {
+            loadGame();
+            
+            // Close modal on overlay click
+            document.getElementById('modalOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Auto-save every 30 seconds
+            setInterval(saveGame, 30000);
+
+            // Render initial page
+            renderPage('dashboard');
+
+            // Responsive sidebar
+            const mediaQuery = window.matchMedia('(max-width: 768px)');
+            function handleMediaChange(e) {
+                if (!e.matches) {
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('sidebarOverlay').classList.remove('active');
+                }
+            }
+            mediaQuery.addEventListener('change', handleMediaChange);
+        }
+
+        // Start game
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "JSKO46",
+  "short_name": "JSKO46",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "description": "JSKO46 Web App",
+  "icons": []
+}
